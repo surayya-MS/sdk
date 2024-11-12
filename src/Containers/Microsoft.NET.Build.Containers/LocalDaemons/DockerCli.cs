@@ -97,9 +97,6 @@ internal sealed class DockerCli
             RedirectStandardError = true
         };
 
-        using Process? loadProcess = Process.Start(removeInfo) ??
-            throw new NotImplementedException(Resource.FormatString(Strings.ContainerRuntimeProcessCreationFailed, commandPath));
-
         using Process? process = Process.Start(removeInfo) ??
             throw new NotImplementedException(Resource.FormatString(Strings.ContainerRuntimeProcessCreationFailed, commandPath));
 
