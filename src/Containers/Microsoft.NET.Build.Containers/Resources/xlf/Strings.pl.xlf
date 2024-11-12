@@ -64,6 +64,18 @@
       {0} is the name of the image index and its tag, {1} is the list of manifests digests
     </note>
       </trans-unit>
+      <trans-unit id="BuildingImageIndexLocally">
+        <source>Building image index '{0}' locally on top of images {1}.</source>
+        <target state="new">Building image index '{0}' locally on top of images {1}.</target>
+        <note>
+      {0} is the name of the image index and its tag, {1} is the list of image ids
+    </note>
+      </trans-unit>
+      <trans-unit id="ContainerBuilder_ImageIndexUploadedToLocalDaemon">
+        <source>Pushed image index '{0}' to {1}.</source>
+        <target state="new">Pushed image index '{0}' to {1}.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="ContainerBuilder_ImageUploadedToLocalDaemon">
         <source>Pushed image '{0}' to {1}.</source>
         <target state="translated">Wypchnięty obraz „{0}” do „{1}”.</target>

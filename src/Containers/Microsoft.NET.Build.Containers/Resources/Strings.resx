@@ -346,6 +346,10 @@
     <value>Pushed image '{0}' to {1}.</value>
     <comment/>
   </data>
+  <data name="ContainerBuilder_ImageIndexUploadedToLocalDaemon" xml:space="preserve">
+    <value>Pushed image index '{0}' to {1}.</value>
+    <comment/>
+  </data>
   <data name="ContainerBuilder_ImageUploadedToRegistry" xml:space="preserve">
     <value>Pushed image '{0}' to registry '{1}'.</value>
     <comment/>
@@ -360,6 +364,12 @@
   </data>
   <data name="DockerImageIndexCreationNotSupported" xml:space="preserve">
     <value>Cannot create image index locally with docker.</value>
+  </data>
+  <data name="BuildingImageIndexLocally" xml:space="preserve">
+    <value>Building image index '{0}' locally on top of images {1}.</value>
+    <comment>
+      {0} is the name of the image index and its tag, {1} is the list of image ids
+    </comment>
   </data>
   <data name="BuildingImageIndex" xml:space="preserve">
     <value>Building image index '{0}' on top of manifests {1}.</value>

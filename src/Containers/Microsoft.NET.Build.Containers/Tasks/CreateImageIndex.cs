@@ -72,7 +72,6 @@ public sealed partial class CreateImageIndex : Microsoft.Build.Utilities.Task, I
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        // TODO: if the local registry is docker log error
         if (LocalRegistry == "Docker")
         {
             Log.LogError(Strings.DockerImageIndexCreationNotSupported);
@@ -81,10 +80,10 @@ public sealed partial class CreateImageIndex : Microsoft.Build.Utilities.Task, I
 
         try
         {
+            // Building with Podman
             string[] imageIds = GetImageIds();
 
-            // TODO: add new message to log building image index for imageids
-            //logger.LogInformation(Strings.BuildingImageIndex, GetRepositoryAndTagsString(), string.Join(", ", images.Select(i => i.ManifestDigest)));
+            logger.LogInformation(Strings.BuildingImageIndexLocally, GetRepositoryAndTagsString(), string.Join(", ", imageIds));
 
             // to be able to create manifest locally with Podman, we need to prefix the image ids with containers-storage
             string[] containersStorageImageIds = new string[imageIds.Length];
@@ -95,8 +94,12 @@ public sealed partial class CreateImageIndex : Microsoft.Build.Utilities.Task, I
 
             foreach (var tag in ImageTags)
             {
-                // TODO: first remove manifest 
-                await localRegistry.CreateManifestAsync($"{Repository}:{tag}", containersStorageImageIds, cancellationToken);
+                // TODO: first remove manifest
+
+                string imageIndexName = $"{Repository}:{tag}";
+                await localRegistry.CreateManifestAsync(imageIndexName, containersStorageImageIds, cancellationToken);
+
+                logger.LogInformation(Strings.ContainerBuilder_ImageIndexUploadedToLocalDaemon, imageIndexName, LocalRegistry);
             }
         }
         catch (Exception ex)

@@ -178,6 +178,24 @@ namespace Microsoft.NET.Build.Containers.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Building image index &apos;{0}&apos; locally on top of images {1}..
+        /// </summary>
+        internal static string BuildingImageIndexLocally {
+            get {
+                return ResourceManager.GetString("BuildingImageIndexLocally", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pushed image index &apos;{0}&apos; to {1}..
+        /// </summary>
+        internal static string ContainerBuilder_ImageIndexUploadedToLocalDaemon {
+            get {
+                return ResourceManager.GetString("ContainerBuilder_ImageIndexUploadedToLocalDaemon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Pushed image &apos;{0}&apos; to {1}..
         /// </summary>
         internal static string ContainerBuilder_ImageUploadedToLocalDaemon {
