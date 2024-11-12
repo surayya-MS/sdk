@@ -99,7 +99,7 @@ public sealed partial class CreateImageIndex : Microsoft.Build.Utilities.Task, I
                 string imageIndexName = $"{Repository}:{tag}";
                 await localRegistry.CreateManifestAsync(imageIndexName, containersStorageImageIds, cancellationToken);
 
-                logger.LogInformation(Strings.ContainerBuilder_ImageIndexUploadedToLocalDaemon, imageIndexName, LocalRegistry);
+                logger.LogInformation(Strings.ContainerBuilder_ImageIndexUploadedToLocalDaemon, imageIndexName, localRegistry);
             }
         }
         catch (Exception ex)
