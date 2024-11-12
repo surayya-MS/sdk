@@ -358,6 +358,9 @@
     <value>Building image '{0}' with tags '{1}' on top of base image '{2}'.</value>
     <comment/>
   </data>
+  <data name="DockerImageIndexCreationNotSupported" xml:space="preserve">
+    <value>Creation of image index with ocker is not supported..</value>
+  </data>
   <data name="BuildingImageIndex" xml:space="preserve">
     <value>Building image index '{0}' on top of manifests {1}.</value>
     <comment>

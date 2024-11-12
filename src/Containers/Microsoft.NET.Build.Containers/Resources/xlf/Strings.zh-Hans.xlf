@@ -94,6 +94,11 @@
         <target state="translated">使用“{0}”的本地注册表</target>
         <note>{0} is the command used</note>
       </trans-unit>
+      <trans-unit id="DockerImageIndexCreationNotSupported">
+        <source>Creation of image index with ocker is not supported..</source>
+        <target state="new">Creation of image index with ocker is not supported..</target>
+        <note />
+      </trans-unit>
       <trans-unit id="DockerInfoFailed">
         <source>CONTAINER3002: Failed to get docker info({0})\n{1}\n{2}</source>
         <target state="translated">CONTAINER3002: 无法获取 docker 信息({0})\n{1}\n{2}</target>

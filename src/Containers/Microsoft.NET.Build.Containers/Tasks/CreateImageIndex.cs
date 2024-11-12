@@ -73,6 +73,11 @@ public sealed partial class CreateImageIndex : Microsoft.Build.Utilities.Task, I
         cancellationToken.ThrowIfCancellationRequested();
 
         // TODO: if the local registry is docker log error
+        if (LocalRegistry == "Docker")
+        {
+            Log.LogError(Strings.DockerImageIndexCreationNotSupported);
+            return false;
+        }
 
         try
         {

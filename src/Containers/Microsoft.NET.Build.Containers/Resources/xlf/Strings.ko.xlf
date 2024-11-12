@@ -94,6 +94,11 @@
         <target state="translated">'{0}'을(를) 통한 로컬 레지스트리</target>
         <note>{0} is the command used</note>
       </trans-unit>
+      <trans-unit id="DockerImageIndexCreationNotSupported">
+        <source>Creation of image index with ocker is not supported..</source>
+        <target state="new">Creation of image index with ocker is not supported..</target>
+        <note />
+      </trans-unit>
       <trans-unit id="DockerInfoFailed">
         <source>CONTAINER3002: Failed to get docker info({0})\n{1}\n{2}</source>
         <target state="translated">CONTAINER3002: 도커 정보({0})를 가져오지 못했습니다.\n{1}\n{2}</target>
