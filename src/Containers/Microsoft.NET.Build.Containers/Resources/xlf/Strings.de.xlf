@@ -95,8 +95,8 @@
         <note>{0} is the command used</note>
       </trans-unit>
       <trans-unit id="DockerImageIndexCreationNotSupported">
-        <source>Creation of image index with ocker is not supported..</source>
-        <target state="new">Creation of image index with ocker is not supported..</target>
+        <source>Cannot create image index locally with docker.</source>
+        <target state="new">Cannot create image index locally with docker.</target>
         <note />
       </trans-unit>
       <trans-unit id="DockerInfoFailed">

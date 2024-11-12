@@ -241,7 +241,7 @@ namespace Microsoft.NET.Build.Containers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Creation of image index with ocker is not supported...
+        ///   Looks up a localized string similar to Cannot create image index locally with docker..
         /// </summary>
         internal static string DockerImageIndexCreationNotSupported {
             get {

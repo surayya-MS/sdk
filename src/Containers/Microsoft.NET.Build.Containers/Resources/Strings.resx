@@ -359,7 +359,7 @@
     <comment/>
   </data>
   <data name="DockerImageIndexCreationNotSupported" xml:space="preserve">
-    <value>Creation of image index with ocker is not supported..</value>
+    <value>Cannot create image index locally with docker.</value>
   </data>
   <data name="BuildingImageIndex" xml:space="preserve">
     <value>Building image index '{0}' on top of manifests {1}.</value>
