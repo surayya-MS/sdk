@@ -116,7 +116,7 @@ internal sealed class DockerCli
 
         var errors = await process.StandardError.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
 
-        if (errors is not null)
+        if (string.IsNullOrEmpty(errors))
         {
             throw new ExternalException(Resource.FormatString(nameof(Strings.ManifestRemoveFailed), errors));
         }
