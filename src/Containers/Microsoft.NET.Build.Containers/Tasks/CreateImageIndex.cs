@@ -94,11 +94,9 @@ public sealed partial class CreateImageIndex : Microsoft.Build.Utilities.Task, I
 
             foreach (var tag in ImageTags)
             {
-                // TODO: first remove manifest
-
                 string imageIndexName = $"{Repository}:{tag}";
+                await localRegistry.RemoveManifestAsync(imageIndexName, cancellationToken);
                 await localRegistry.CreateManifestAsync(imageIndexName, containersStorageImageIds, cancellationToken);
-
                 logger.LogInformation(Strings.ContainerBuilder_ImageIndexUploadedToLocalDaemon, imageIndexName, localRegistry);
             }
         }

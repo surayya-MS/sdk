@@ -54,6 +54,9 @@ internal class ArchiveFileRegistry : ILocalRegistry
         return string.Format(Strings.ArchiveRegistry_PushInfo, ArchiveOutputPath);
     }
 
+    public Task RemoveManifestAsync(string manifestName, CancellationToken cancellationToken)
+        => throw new NotImplementedException();
+
     public Task CreateManifestAsync(string manifestName, string[] images, CancellationToken cancellationToken)
         => throw new NotImplementedException();
 }

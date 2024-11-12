@@ -14,12 +14,13 @@ internal interface ILocalRegistry {
     public Task LoadAsync(BuiltImage image, SourceImageReference sourceReference, DestinationImageReference destinationReference, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Creates manifest from the images.
+    /// Removes manifest from the local registry.
     /// </summary>
-    /// <param name="manifestName"></param>
-    /// <param name="imageIds"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
+    public Task RemoveManifestAsync(string manifestName, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Creates manifest from the images in the local registry.
+    /// </summary>
     public Task CreateManifestAsync(string manifestName, string[] images, CancellationToken cancellationToken);
 
     /// <summary>
