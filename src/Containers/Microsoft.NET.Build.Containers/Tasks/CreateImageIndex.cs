@@ -2,10 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics;
-using System.Threading;
 using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
 using Microsoft.Extensions.Logging;
+using Microsoft.NET.Build.Containers.LocalDaemons;
 using Microsoft.NET.Build.Containers.Logging;
 using Microsoft.NET.Build.Containers.Resources;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
@@ -72,7 +71,7 @@ public sealed partial class CreateImageIndex : Microsoft.Build.Utilities.Task, I
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (LocalRegistry == "Docker")
+        if (IsDockerLocalRegistry)
         {
             Log.LogError(Strings.DockerImageIndexCreationNotSupported);
             return false;
@@ -107,6 +106,8 @@ public sealed partial class CreateImageIndex : Microsoft.Build.Utilities.Task, I
 
         return !Log.HasLoggedErrors;
     }
+
+    private bool IsDockerLocalRegistry => LocalRegistry == "" || LocalRegistry == "Docker";
 
     private string[] GetImageIds()
     {

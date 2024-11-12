@@ -384,7 +384,7 @@
 
     <PropertyGroup>
       <_SkipCreateImageIndex>false</_SkipCreateImageIndex>
-      <_SkipCreateImageIndex Condition="'$(ContainerRegistry)' == '' and '$(LocalRegistry)' == 'Docker'">true</_SkipCreateImageIndex>
+      <_SkipCreateImageIndex Condition="'$(ContainerRegistry)' == '' and ('$(LocalRegistry)' == '' or '$(LocalRegistry)' == 'Docker')">true</_SkipCreateImageIndex>
     </PropertyGroup>
 
     <CreateImageIndex Condition="'$(_SkipCreateImageIndex)' == 'false' "
