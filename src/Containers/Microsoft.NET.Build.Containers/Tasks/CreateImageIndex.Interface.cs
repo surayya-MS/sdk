@@ -16,8 +16,12 @@ partial class CreateImageIndex
     /// <summary>
     /// The registry to push the image index to.
     /// </summary>
-    [Required]
     public string OutputRegistry { get; set; }
+
+    /// <summary>
+    /// The kind of local registry to use, if any.
+    /// </summary>
+    public string LocalRegistry { get; set; }
 
     /// <summary>
     /// The name of the output image index (manifest list) that will be pushed to the registry.
@@ -34,6 +38,7 @@ partial class CreateImageIndex
     /// <summary>
     /// The generated image index (manifest list) in JSON format.
     /// </summary>
+    /// <remarks>This is not empty string only when <see cref="OutputRegistry"/> is provided.</remarks>
     [Output]
     public string GeneratedImageIndex { get; set; }
 
@@ -41,6 +46,7 @@ partial class CreateImageIndex
     {
         GeneratedContainers = Array.Empty<ITaskItem>();
         OutputRegistry = string.Empty;
+        LocalRegistry = string.Empty;
         Repository = string.Empty;
         ImageTags = Array.Empty<string>();
         GeneratedImageIndex = string.Empty;

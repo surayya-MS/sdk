@@ -14,6 +14,15 @@ internal interface ILocalRegistry {
     public Task LoadAsync(BuiltImage image, SourceImageReference sourceReference, DestinationImageReference destinationReference, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Creates manifest from the images.
+    /// </summary>
+    /// <param name="manifestName"></param>
+    /// <param name="imageIds"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public Task CreateManifestAsync(string manifestName, string[] images, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Checks to see if the local registry is available. This is used to give nice errors to the user.
     /// </summary>
     public Task<bool> IsAvailableAsync(CancellationToken cancellationToken);

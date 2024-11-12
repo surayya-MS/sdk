@@ -82,6 +82,46 @@ internal sealed class DockerCli
         return _fullCommandPath;
     }
 
+    public async Task RemoveManifestAsync(string manifestName, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        string commandPath = await FindFullCommandPath(cancellationToken);
+
+        // use Process to call "docker/podman manifest rm {manifestName}"
+    }
+
+    public async Task CreateManifestAsync(string manifestName, string[] images, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        string commandPath = await FindFullCommandPath(cancellationToken);
+
+        // then create a new manifest
+
+        // call `docker/podman manifest create` and get it ready to receive input
+        var manifestCreateArgs = $"manifest create {manifestName} {string.Join(" ", images)}";
+        ProcessStartInfo loadInfo = new(commandPath, manifestCreateArgs)
+        {
+            RedirectStandardInput = true,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+
+        using Process? loadProcess = Process.Start(loadInfo) ??
+            throw new NotImplementedException(Resource.FormatString(Strings.ContainerRuntimeProcessCreationFailed, commandPath));
+
+        await loadProcess.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (loadProcess.ExitCode != 0)
+        {
+            // TODO: add new exception type
+            throw new DockerLoadException(Resource.FormatString(nameof(Strings.ImageLoadFailed), await loadProcess.StandardError.ReadToEndAsync(cancellationToken).ConfigureAwait(false)));
+        }
+    }
+
     public async Task LoadAsync(BuiltImage image, SourceImageReference sourceReference, DestinationImageReference destinationReference, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();

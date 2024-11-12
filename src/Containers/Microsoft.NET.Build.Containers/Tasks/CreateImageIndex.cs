@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics;
+using System.Threading;
 using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.NET.Build.Containers.Logging;
 using Microsoft.NET.Build.Containers.Resources;
@@ -43,25 +45,99 @@ public sealed partial class CreateImageIndex : Microsoft.Build.Utilities.Task, I
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        using MSBuildLoggerProvider loggerProvider = new(Log);
+        ILoggerFactory msbuildLoggerFactory = new LoggerFactory([loggerProvider]);
+        ILogger logger = msbuildLoggerFactory.CreateLogger<CreateImageIndex>();
+
+        DestinationImageReference destinationImageReference = DestinationImageReference.CreateFromSettings(
+            Repository,
+            ImageTags,
+            msbuildLoggerFactory,
+            null,
+            OutputRegistry,
+            LocalRegistry);
+
+        switch (destinationImageReference.Kind)
+        {
+            case DestinationImageReferenceKind.LocalRegistry:
+                return await CreateImageIndexLocally(destinationImageReference.LocalRegistry!, logger, cancellationToken);
+            case DestinationImageReferenceKind.RemoteRegistry:
+                return await CreateImageIndexRemotely(destinationImageReference.RemoteRegistry!, logger, cancellationToken);
+            default:
+                throw new ArgumentOutOfRangeException();
+        } 
+    }
+
+    private async Task<bool> CreateImageIndexLocally(ILocalRegistry localRegistry, ILogger logger, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // TODO: if the local registry is docker log error
+
+        try
+        {
+            string[] imageIds = GetImageIds();
+
+            // TODO: add new message to log building image index for imageids
+            //logger.LogInformation(Strings.BuildingImageIndex, GetRepositoryAndTagsString(), string.Join(", ", images.Select(i => i.ManifestDigest)));
+
+            // to be able to create manifest locally with Podman, we need to prefix the image ids with containers-storage
+            string[] containersStorageImageIds = new string[imageIds.Length];
+            for (int i = 0; i < imageIds.Length; i++)
+            {
+                containersStorageImageIds[i] = $"containers-storage:{imageIds[i]}";
+            }
+
+            foreach (var tag in ImageTags)
+            {
+                // TODO: first remove manifest 
+                await localRegistry.CreateManifestAsync($"{Repository}:{tag}", containersStorageImageIds, cancellationToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.LogErrorFromException(ex);
+        }
+
+        return !Log.HasLoggedErrors;
+    }
+
+    private string[] GetImageIds()
+    {
+        var imageIds = new string[GeneratedContainers.Length];
+
+        for (int i = 0; i < GeneratedContainers.Length; i++)
+        {
+            imageIds[i] = GeneratedContainers[i].GetMetadata("ImageId");
+            if (string.IsNullOrEmpty(imageIds[i]))
+            {
+                // TODO: add new error for nly image ids
+                Log.LogError(Strings.InvalidImageMetadata, GeneratedContainers[i].ItemSpec);
+                break;
+            }
+        }
+
+        return imageIds;
+    }
+
+    private async Task<bool> CreateImageIndexRemotely(Registry registry, ILogger logger, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var images = ParseImages();
         if (Log.HasLoggedErrors)
         {
-            return !Log.HasLoggedErrors;
+            return false;
         }
-
-        using MSBuildLoggerProvider loggerProvider = new(Log);
-        ILoggerFactory msbuildLoggerFactory = new LoggerFactory(new[] { loggerProvider });
-        ILogger logger = msbuildLoggerFactory.CreateLogger<CreateImageIndex>();
 
         logger.LogInformation(Strings.BuildingImageIndex, GetRepositoryAndTagsString(), string.Join(", ", images.Select(i => i.ManifestDigest)));
 
         try
         {
             (string imageIndex, string mediaType) = ImageIndexGenerator.GenerateImageIndex(images);
-
             GeneratedImageIndex = imageIndex;
 
-            await PushToRemoteRegistry(GeneratedImageIndex, mediaType, logger, cancellationToken);
+            await PushToRemoteRegistry(registry, GeneratedImageIndex, mediaType, logger, cancellationToken);
         }
         catch (ContainerHttpException e)
         {
@@ -109,11 +185,10 @@ public sealed partial class CreateImageIndex : Microsoft.Build.Utilities.Task, I
         return images;
     }
 
-    private async Task PushToRemoteRegistry(string manifestList, string mediaType, ILogger logger, CancellationToken cancellationToken)
+    private async Task PushToRemoteRegistry(Registry registry, string manifestList, string mediaType, ILogger logger, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         Debug.Assert(ImageTags.Length > 0);
-        var registry = new Registry(OutputRegistry, logger, RegistryMode.Push);
         await registry.PushManifestListAsync(Repository, ImageTags, manifestList, mediaType, cancellationToken).ConfigureAwait(false);
         logger.LogInformation(Strings.ImageIndexUploadedToRegistry, GetRepositoryAndTagsString(), OutputRegistry);
     }

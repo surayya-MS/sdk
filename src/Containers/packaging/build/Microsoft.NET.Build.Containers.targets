@@ -322,6 +322,7 @@
       <Output TaskParameter="GeneratedContainerDigest" PropertyName="GeneratedContainerDigest" />
       <Output TaskParameter="GeneratedArchiveOutputPath" PropertyName="GeneratedArchiveOutputPath" />
       <Output TaskParameter="GeneratedContainerMediaType" PropertyName="GeneratedContainerMediaType" />
+      <Output TaskParameter="GeneratedImageId" PropertyName="GeneratedImageId" />
       <Output TaskParameter="GeneratedContainerNames" ItemName="GeneratedContainerName" />
     </CreateNewImage>
 
@@ -331,6 +332,7 @@
         <Configuration>$(GeneratedContainerConfiguration)</Configuration>
         <ManifestDigest>$(GeneratedContainerDigest)</ManifestDigest>
         <ManifestMediaType>$(GeneratedContainerMediaType)</ManifestMediaType>
+        <ImageId>$(GeneratedImageId)</ImageId>
       </GeneratedContainers>
     </ItemGroup>
   </Target>
@@ -385,8 +387,9 @@
       <_SkipCreateImageIndex Condition="'$(ContainerRegistry)' == ''">true</_SkipCreateImageIndex>
     </PropertyGroup>
 
-    <CreateImageIndex Condition="'$(_SkipCreateImageIndex)' == 'false' "
+    <CreateImageIndex
                       GeneratedContainers="@(GeneratedContainers)"
+                      LocalRegistry="$(LocalRegistry)"
                       OutputRegistry="$(ContainerRegistry)"
                       Repository="$(ContainerRepository)"
                       ImageTags="@(ContainerImageTags)">

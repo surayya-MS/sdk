@@ -177,6 +177,9 @@ partial class CreateNewImage
     public string GeneratedContainerMediaType { get; set; }
 
     [Output]
+    public string GeneratedImageId { get; set; }
+
+    [Output]
     public ITaskItem[] GeneratedContainerNames { get; set; }
 
     public CreateNewImage()
@@ -212,6 +215,7 @@ partial class CreateNewImage
         GeneratedContainerDigest = "";
         GeneratedArchiveOutputPath = "";
         GeneratedContainerMediaType = "";
+        GeneratedImageId = "";
         GeneratedContainerNames = Array.Empty<ITaskItem>();
 
         GenerateLabels = false;
