@@ -104,14 +104,21 @@ internal sealed class DockerCli
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (process.ExitCode != 0)
+        //if (process.ExitCode != 0)
+        //{
+        //    var errors = await process.StandardError.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
+        //    // we don't care about image not being found, we just want to make sure the old manifest is removed if it existed
+        //    if (errors is not null && errors != $"Error: {manifestName}: image not known")
+        //    {
+        //        throw new ExternalException(Resource.FormatString(nameof(Strings.ManifestRemoveFailed), errors));
+        //    }
+        //}
+
+        var errors = await process.StandardError.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
+
+        if (errors is not null)
         {
-            var errors = await process.StandardError.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
-            // we don't care about image not being found, we just want to make sure the old manifest is removed if it existed
-            //if (errors is not null && errors != $"Error: {manifestName}: image not known")
-            //{
-                throw new ExternalException(Resource.FormatString(nameof(Strings.ManifestRemoveFailed), errors));
-            //}
+            throw new ExternalException(Resource.FormatString(nameof(Strings.ManifestRemoveFailed), errors));
         }
     }
 
