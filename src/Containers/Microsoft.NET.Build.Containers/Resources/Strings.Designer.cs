@@ -565,6 +565,24 @@ namespace Microsoft.NET.Build.Containers.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to CONTAINER1019: Failed to create manifest in local registry. stdout: {0}.
+        /// </summary>
+        internal static string ManifestCreateFailed {
+            get {
+                return ResourceManager.GetString("ManifestCreateFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CONTAINER1018: Failed to remove manifest from local registry. stdout: {0}.
+        /// </summary>
+        internal static string ManifestRemoveFailed {
+            get {
+                return ResourceManager.GetString("ManifestRemoveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to CONTAINER2004: Unable to download layer with descriptor &apos;{0}&apos; from registry &apos;{1}&apos; because it does not exist..
         /// </summary>
         internal static string MissingLinkToRegistry {

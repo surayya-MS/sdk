@@ -10,6 +10,7 @@ using System.Text.Json.Nodes;
 using Microsoft.DotNet.Cli.Utils;
 using Microsoft.Extensions.Logging;
 using Microsoft.NET.Build.Containers.Resources;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Microsoft.NET.Build.Containers;
 
@@ -88,7 +89,33 @@ internal sealed class DockerCli
 
         string commandPath = await FindFullCommandPath(cancellationToken);
 
-        // use Process to call "docker/podman manifest rm {manifestName}"
+        var manifestCreateArgs = $"manifest rm {manifestName}";
+        ProcessStartInfo removeInfo = new(commandPath, manifestCreateArgs)
+        {
+            RedirectStandardInput = true,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+
+        using Process? loadProcess = Process.Start(removeInfo) ??
+            throw new NotImplementedException(Resource.FormatString(Strings.ContainerRuntimeProcessCreationFailed, commandPath));
+
+        using Process? process = Process.Start(removeInfo) ??
+            throw new NotImplementedException(Resource.FormatString(Strings.ContainerRuntimeProcessCreationFailed, commandPath));
+
+        await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (process.ExitCode != 0)
+        {
+            var errors = await process.StandardError.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
+            // we don't care about image not being found, we just want to make sure the old manifest is removed if it existed
+            if (errors is not null && errors != $"Error: {manifestName}: image not known")
+            {
+                throw new ExternalException(Resource.FormatString(nameof(Strings.ManifestRemoveFailed), errors));
+            }
+        }
     }
 
     public async Task CreateManifestAsync(string manifestName, string[] images, CancellationToken cancellationToken)
@@ -97,28 +124,24 @@ internal sealed class DockerCli
 
         string commandPath = await FindFullCommandPath(cancellationToken);
 
-        // then create a new manifest
-
-        // call `docker/podman manifest create` and get it ready to receive input
         var manifestCreateArgs = $"manifest create {manifestName} {string.Join(" ", images)}";
-        ProcessStartInfo loadInfo = new(commandPath, manifestCreateArgs)
+        ProcessStartInfo createInfo = new(commandPath, manifestCreateArgs)
         {
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
             RedirectStandardError = true
         };
 
-        using Process? loadProcess = Process.Start(loadInfo) ??
+        using Process? process = Process.Start(createInfo) ??
             throw new NotImplementedException(Resource.FormatString(Strings.ContainerRuntimeProcessCreationFailed, commandPath));
 
-        await loadProcess.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+        await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (loadProcess.ExitCode != 0)
+        if (process.ExitCode != 0)
         {
-            // TODO: add new exception type
-            throw new DockerLoadException(Resource.FormatString(nameof(Strings.ImageLoadFailed), await loadProcess.StandardError.ReadToEndAsync(cancellationToken).ConfigureAwait(false)));
+            throw new ExternalException(Resource.FormatString(nameof(Strings.ManifestCreateFailed), await process.StandardError.ReadToEndAsync(cancellationToken).ConfigureAwait(false)));
         }
     }
 

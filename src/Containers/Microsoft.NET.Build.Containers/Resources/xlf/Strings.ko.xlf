@@ -281,6 +281,16 @@
         <target state="translated">디먼 서버에서 오류를 보고했습니다. {0}</target>
         <note>{0} are the list of messages, each message starts with new line</note>
       </trans-unit>
+      <trans-unit id="ManifestCreateFailed">
+        <source>CONTAINER1019: Failed to create manifest in local registry. stdout: {0}</source>
+        <target state="new">CONTAINER1019: Failed to create manifest in local registry. stdout: {0}</target>
+        <note>{StrBegin="CONTAINER1009: "}</note>
+      </trans-unit>
+      <trans-unit id="ManifestRemoveFailed">
+        <source>CONTAINER1018: Failed to remove manifest from local registry. stdout: {0}</source>
+        <target state="new">CONTAINER1018: Failed to remove manifest from local registry. stdout: {0}</target>
+        <note>{StrBegin="CONTAINER1009: "}</note>
+      </trans-unit>
       <trans-unit id="MissingLinkToRegistry">
         <source>CONTAINER2004: Unable to download layer with descriptor '{0}' from registry '{1}' because it does not exist.</source>
         <target state="translated">CONTAINER2004: '{1}' 레지스트리에서 설명자가 '{0}'인 레이어가 존재하지 않기 때문에 다운로드할 수 없습니다.</target>

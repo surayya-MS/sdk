@@ -185,6 +185,14 @@
     <value>No host object detected.</value>
     <comment/>
   </data>
+  <data name="ManifestRemoveFailed" xml:space="preserve">
+    <value>CONTAINER1018: Failed to remove manifest from local registry. stdout: {0}</value>
+    <comment>{StrBegin="CONTAINER1009: "}</comment>
+  </data>
+  <data name="ManifestCreateFailed" xml:space="preserve">
+    <value>CONTAINER1019: Failed to create manifest in local registry. stdout: {0}</value>
+    <comment>{StrBegin="CONTAINER1009: "}</comment>
+  </data>
   <data name="ImageLoadFailed" xml:space="preserve">
     <value>CONTAINER1009: Failed to load image from local registry. stdout: {0}</value>
     <comment>{StrBegin="CONTAINER1009: "}</comment>

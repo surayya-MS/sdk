@@ -281,6 +281,16 @@
         <target state="translated">精靈伺服器報告錯誤: {0}</target>
         <note>{0} are the list of messages, each message starts with new line</note>
       </trans-unit>
+      <trans-unit id="ManifestCreateFailed">
+        <source>CONTAINER1019: Failed to create manifest in local registry. stdout: {0}</source>
+        <target state="new">CONTAINER1019: Failed to create manifest in local registry. stdout: {0}</target>
+        <note>{StrBegin="CONTAINER1009: "}</note>
+      </trans-unit>
+      <trans-unit id="ManifestRemoveFailed">
+        <source>CONTAINER1018: Failed to remove manifest from local registry. stdout: {0}</source>
+        <target state="new">CONTAINER1018: Failed to remove manifest from local registry. stdout: {0}</target>
+        <note>{StrBegin="CONTAINER1009: "}</note>
+      </trans-unit>
       <trans-unit id="MissingLinkToRegistry">
         <source>CONTAINER2004: Unable to download layer with descriptor '{0}' from registry '{1}' because it does not exist.</source>
         <target state="translated">CONTAINER2004: 無法從登錄 '{1}' 下載描述元為 '{0}' 的層，因為它不存在。</target>
