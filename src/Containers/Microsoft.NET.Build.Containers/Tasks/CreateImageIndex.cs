@@ -77,9 +77,15 @@ public sealed partial class CreateImageIndex : Microsoft.Build.Utilities.Task, I
             return false;
         }
 
+        // Building with Podman
         try
         {
-            // Building with Podman
+            if (GeneratedContainers.Length == 0)
+            {
+                Log.LogError(Strings.ImagesEmpty);
+                return false;
+            }
+
             string[] imageIds = GetImageIds();
 
             logger.LogInformation(Strings.BuildingImageIndexLocally, GetRepositoryAndTagsString(), string.Join(", ", imageIds));
@@ -118,7 +124,7 @@ public sealed partial class CreateImageIndex : Microsoft.Build.Utilities.Task, I
             imageIds[i] = GeneratedContainers[i].GetMetadata("ImageId");
             if (string.IsNullOrEmpty(imageIds[i]))
             {
-                Log.LogError(Strings.InvalidImageIdMetadata, GeneratedContainers[i].ItemSpec);
+                Log.LogError(Strings.InvalidImageIdMetadata);
                 break;
             }
         }

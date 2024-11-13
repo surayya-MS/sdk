@@ -6,8 +6,11 @@ using FakeItEasy;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Microsoft.NET.Build.Containers.IntegrationTests;
+using Microsoft.NET.Build.Containers.Resources;
 using Microsoft.NET.Build.Containers.UnitTests;
 using NuGet.Protocol;
+using NuGet.Protocol.Core.Types;
+using static System.Net.Mime.MediaTypeNames;
 using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.NET.Build.Containers.Tasks.IntegrationTests;
@@ -23,17 +26,17 @@ public class CreateImageIndexTests
     }
 
     [DockerAvailableFact]
-    public async Task CreateImageIndex_Baseline()
+    public async Task CreateImageIndex_RemoteRegistry()
     {
         DirectoryInfo newProjectDir = CreateNewProject();
         (IBuildEngine buildEngine, List<string?> errors) = SetupBuildEngine();
         string outputRegistry = DockerRegistryManager.LocalRegistry;
-        string repository = "dotnet/create-image-index-baseline";
+        string repository = "dotnet/create-image-index-remote-registry";
         string[] tags = new[] { "tag1", "tag2" };
 
         // Create images for 2 rids
-        TaskItem image1 = PublishAndCreateNewImage("linux-x64", outputRegistry, repository, tags, newProjectDir, buildEngine, errors);
-        TaskItem image2 = PublishAndCreateNewImage("linux-arm64", outputRegistry, repository, tags, newProjectDir, buildEngine, errors);
+        TaskItem image1 = PublishAndCreateNewImageRemotely("linux-x64", outputRegistry, repository, tags, newProjectDir, buildEngine, errors);
+        TaskItem image2 = PublishAndCreateNewImageRemotely("linux-arm64", outputRegistry, repository, tags, newProjectDir, buildEngine, errors);
 
         // Create image index
         CreateImageIndex cii = new();
@@ -59,7 +62,7 @@ public class CreateImageIndexTests
 
         // Assert that the image index is pushed to the registry
         var loggerFactory = new TestLoggerFactory(_testOutput);
-        var logger = loggerFactory.CreateLogger(nameof(CreateImageIndex_Baseline));
+        var logger = loggerFactory.CreateLogger(nameof(CreateImageIndex_RemoteRegistry));
         Registry registry = new(outputRegistry, logger, RegistryMode.Pull);
 
         await AssertThatImageIsReferencedInImageIndex("linux-x64", repository, tags, registry);
@@ -67,6 +70,106 @@ public class CreateImageIndexTests
 
         newProjectDir.Delete(true);
     }
+
+    [DockerAvailableFact]
+    public void CreateImageIndex_DockerLocalRegistry()
+    {
+        (IBuildEngine buildEngine, List<string?> errors) = SetupBuildEngine();
+
+        // Create image index
+        CreateImageIndex cii = new();
+        cii.BuildEngine = buildEngine;
+        cii.LocalRegistry = "Docker";
+        cii.Repository = "";
+        cii.ImageTags = [];
+        cii.GeneratedContainers = [];
+
+        Assert.False(cii.Execute(), FormatBuildMessages(errors));
+
+        errors.Should().Contain(Strings.DockerImageIndexCreationNotSupported);
+    }
+
+    [DockerAvailableFact]
+    public void CreateImageIndex_PodmanLocalRegistry_EmptyImages()
+    {
+        (IBuildEngine buildEngine, List<string?> errors) = SetupBuildEngine();
+
+        // Create image index
+        CreateImageIndex cii = new();
+        cii.BuildEngine = buildEngine;
+        cii.LocalRegistry = "Podman";
+        cii.Repository = "";
+        cii.ImageTags = [];
+        cii.GeneratedContainers = [];
+
+        Assert.False(cii.Execute(), FormatBuildMessages(errors));
+
+        errors.Should().Contain(Strings.ImagesEmpty);
+    }
+
+    [DockerAvailableFact]
+    public void CreateImageIndex_PodmanLocalRegistry_InvalidImages()
+    {
+        (IBuildEngine buildEngine, List<string?> errors) = SetupBuildEngine();
+
+        // Create image index
+        CreateImageIndex cii = new();
+        cii.BuildEngine = buildEngine;
+        cii.LocalRegistry = "Podman";
+        cii.Repository = "";
+        cii.ImageTags = [];
+        cii.GeneratedContainers = [new TaskItem()];
+
+        Assert.False(cii.Execute(), FormatBuildMessages(errors));
+
+        errors.Should().Contain(Strings.InvalidImageIdMetadata);
+    }
+
+    //[DockerAvailableFact]
+    //public async Task CreateImageIndex_LocalRegistry()
+    //{
+    //    DirectoryInfo newProjectDir = CreateNewProject();
+    //    (IBuildEngine buildEngine, List<string?> errors) = SetupBuildEngine();
+    //    string localRegistry = "Podman";
+    //    string repository = "dotnet/create-image-index-baseline";
+    //    string[] tags = new[] { "tag1", "tag2" };
+
+    //    // Create images for 2 rids
+    //    TaskItem image1 = PublishAndCreateNewImageRemotely("linux-x64", localRegistry, repository, tags, newProjectDir, buildEngine, errors);
+    //    TaskItem image2 = PublishAndCreateNewImageRemotely("linux-arm64", localRegistry, repository, tags, newProjectDir, buildEngine, errors);
+
+    //    // Create image index
+    //    CreateImageIndex cii = new();
+    //    cii.BuildEngine = buildEngine;
+    //    cii.OutputRegistry = localRegistry;
+    //    cii.Repository = repository;
+    //    cii.ImageTags = tags;
+    //    cii.GeneratedContainers = [image1, image2];
+    //    Assert.True(cii.Execute(), FormatBuildMessages(errors));
+
+    //    // Assert that the image index is created correctly
+    //    cii.GeneratedImageIndex.Should().NotBeNullOrEmpty();
+    //    var imageIndex = cii.GeneratedImageIndex.FromJson<ManifestListV2>();
+    //    imageIndex.manifests.Should().HaveCount(2);
+
+    //    imageIndex.manifests[0].digest.Should().Be(image1.GetMetadata("ManifestDigest"));
+    //    imageIndex.manifests[0].platform.os.Should().Be("linux");
+    //    imageIndex.manifests[0].platform.architecture.Should().Be("amd64");
+
+    //    imageIndex.manifests[1].digest.Should().Be(image2.GetMetadata("ManifestDigest"));
+    //    imageIndex.manifests[1].platform.os.Should().Be("linux");
+    //    imageIndex.manifests[1].platform.architecture.Should().Be("arm64");
+
+    //    // Assert that the image index is pushed to the registry
+    //    var loggerFactory = new TestLoggerFactory(_testOutput);
+    //    var logger = loggerFactory.CreateLogger(nameof(CreateImageIndex_RemoteRegistry));
+    //    Registry registry = new(localRegistry, logger, RegistryMode.Pull);
+
+    //    await AssertThatImageIsReferencedInImageIndex("linux-x64", repository, tags, registry);
+    //    await AssertThatImageIsReferencedInImageIndex("linux-arm64", repository, tags, registry);
+
+    //    newProjectDir.Delete(true);
+    //}
 
     private DirectoryInfo CreateNewProject()
     {
@@ -84,7 +187,7 @@ public class CreateImageIndexTests
         return newProjectDir;
     }
 
-    private TaskItem PublishAndCreateNewImage(
+    private TaskItem PublishAndCreateNewImageRemotely(
         string rid,
         string outputRegistry,
         string repository,
