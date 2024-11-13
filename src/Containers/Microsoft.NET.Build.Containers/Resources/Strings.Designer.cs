@@ -421,11 +421,20 @@ namespace Microsoft.NET.Build.Containers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cannot create manifest list (image index) because provided images are invalid. Items must have &apos;Config&apos;, &apos;Manifest&apos;, &apos;ManifestMediaType&apos; and &apos;ManifestDigest&apos; metadata..
+        ///   Looks up a localized string similar to Cannot create manifest list (image index) in local registry because provided images are invalid. Items must have &apos;ImageId&apos; metadata..
         /// </summary>
-        internal static string InvalidImageMetadata {
+        internal static string InvalidImageIdMetadata {
             get {
-                return ResourceManager.GetString("InvalidImageMetadata", resourceCulture);
+                return ResourceManager.GetString("InvalidImageIdMetadata", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot create manifest list (image index) in remote registry because provided images are invalid. Items must have &apos;Config&apos;, &apos;Manifest&apos;, &apos;ManifestMediaType&apos; and &apos;ManifestDigest&apos; metadata..
+        /// </summary>
+        internal static string InvalidImageManifestMetadata {
+            get {
+                return ResourceManager.GetString("InvalidImageManifestMetadata", resourceCulture);
             }
         }
         

@@ -118,8 +118,7 @@ public sealed partial class CreateImageIndex : Microsoft.Build.Utilities.Task, I
             imageIds[i] = GeneratedContainers[i].GetMetadata("ImageId");
             if (string.IsNullOrEmpty(imageIds[i]))
             {
-                // TODO: add new error for nly image ids
-                Log.LogError(Strings.InvalidImageMetadata, GeneratedContainers[i].ItemSpec);
+                Log.LogError(Strings.InvalidImageIdMetadata, GeneratedContainers[i].ItemSpec);
                 break;
             }
         }
@@ -176,7 +175,7 @@ public sealed partial class CreateImageIndex : Microsoft.Build.Utilities.Task, I
 
             if (string.IsNullOrEmpty(config) || string.IsNullOrEmpty(manifestDigest) || string.IsNullOrEmpty(manifest))
             {
-                Log.LogError(Strings.InvalidImageMetadata, unparsedImage.ItemSpec);
+                Log.LogError(Strings.InvalidImageManifestMetadata, unparsedImage.ItemSpec);
                 break;
             }
 

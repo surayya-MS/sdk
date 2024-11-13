@@ -201,9 +201,14 @@
         <target state="translated">CONTAINER2015: {0}: „{1}” nie jest prawidłową zmienną środowiskową. Ignorowanie.</target>
         <note>{StrBegin="CONTAINER2015: "}</note>
       </trans-unit>
-      <trans-unit id="InvalidImageMetadata">
-        <source>Cannot create manifest list (image index) because provided images are invalid. Items must have 'Config', 'Manifest', 'ManifestMediaType' and 'ManifestDigest' metadata.</source>
-        <target state="new">Cannot create manifest list (image index) because provided images are invalid. Items must have 'Config', 'Manifest', 'ManifestMediaType' and 'ManifestDigest' metadata.</target>
+      <trans-unit id="InvalidImageIdMetadata">
+        <source>Cannot create manifest list (image index) in local registry because provided images are invalid. Items must have 'ImageId' metadata.</source>
+        <target state="new">Cannot create manifest list (image index) in local registry because provided images are invalid. Items must have 'ImageId' metadata.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="InvalidImageManifestMetadata">
+        <source>Cannot create manifest list (image index) in remote registry because provided images are invalid. Items must have 'Config', 'Manifest', 'ManifestMediaType' and 'ManifestDigest' metadata.</source>
+        <target state="new">Cannot create manifest list (image index) in remote registry because provided images are invalid. Items must have 'Config', 'Manifest', 'ManifestMediaType' and 'ManifestDigest' metadata.</target>
         <note />
       </trans-unit>
       <trans-unit id="InvalidImageName_EntireNameIsInvalidCharacters">

@@ -397,8 +397,12 @@
     <value>Cannot create manifest list (image index) because no images were provided.</value>
     <comment/>
   </data>
-  <data name="InvalidImageMetadata" xml:space="preserve">
-    <value>Cannot create manifest list (image index) because provided images are invalid. Items must have 'Config', 'Manifest', 'ManifestMediaType' and 'ManifestDigest' metadata.</value>
+  <data name="InvalidImageIdMetadata" xml:space="preserve">
+    <value>Cannot create manifest list (image index) in local registry because provided images are invalid. Items must have 'ImageId' metadata.</value>
+    <comment/>
+  </data>
+  <data name="InvalidImageManifestMetadata" xml:space="preserve">
+    <value>Cannot create manifest list (image index) in remote registry because provided images are invalid. Items must have 'Config', 'Manifest', 'ManifestMediaType' and 'ManifestDigest' metadata.</value>
     <comment/>
   </data>
   <data name="LocalDocker_FailedToGetConfig" xml:space="preserve">
