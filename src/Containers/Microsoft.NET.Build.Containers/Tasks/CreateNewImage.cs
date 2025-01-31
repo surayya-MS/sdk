@@ -1,10 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Text.Json;
 using Microsoft.Build.Framework;
 using Microsoft.Extensions.Logging;
-using Microsoft.NET.Build.Containers.LocalDaemons;
 using Microsoft.NET.Build.Containers.Logging;
 using Microsoft.NET.Build.Containers.Resources;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
@@ -122,7 +120,10 @@ public sealed partial class CreateNewImage : Microsoft.Build.Utilities.Task, ICa
             return !Log.HasLoggedErrors;
         }
 
-        SafeLog(Strings.ContainerBuilder_StartBuildingImage, Repository, String.Join(",", ImageTags), sourceImageReference);
+        if (BuildEngine != null) 
+        {
+            Log.LogMessage(MessageImportance.High, Strings.ContainerBuilder_StartBuildingImage, Repository, String.Join(",", ImageTags), sourceImageReference);
+        }
 
         // forcibly change the media type if required
         if (ImageFormat is not null)
@@ -195,105 +196,10 @@ public sealed partial class CreateNewImage : Microsoft.Build.Utilities.Task, ICa
         GeneratedContainerMediaType = builtImage.ManifestMediaType;
         GeneratedContainerNames = destinationImageReference.FullyQualifiedImageNames().Select(name => new Microsoft.Build.Utilities.TaskItem(name)).ToArray();
 
-        switch (destinationImageReference.Kind)
-        {
-            case DestinationImageReferenceKind.LocalRegistry:
-                await PushToLocalRegistryAsync(builtImage,
-                    sourceImageReference,
-                    destinationImageReference,
-                    telemetry,
-                    cancellationToken).ConfigureAwait(false);
-                break;
-            case DestinationImageReferenceKind.RemoteRegistry:
-                await PushToRemoteRegistryAsync(builtImage,
-                    sourceImageReference,
-                    destinationImageReference,
-                    cancellationToken).ConfigureAwait(false);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-
-        telemetry.LogPublishSuccess();
+        await ImagePublisher.PublishImage(builtImage, sourceImageReference, destinationImageReference, Log, BuildEngine, telemetry, cancellationToken)
+            .ConfigureAwait(false);
 
         return !Log.HasLoggedErrors;
-    }
-
-    private async Task PushToLocalRegistryAsync(BuiltImage builtImage, SourceImageReference sourceImageReference,
-        DestinationImageReference destinationImageReference,
-        Telemetry telemetry,
-        CancellationToken cancellationToken)
-    {
-        ILocalRegistry localRegistry = destinationImageReference.LocalRegistry!;
-        if (!(await localRegistry.IsAvailableAsync(cancellationToken).ConfigureAwait(false)))
-        {
-            telemetry.LogMissingLocalBinary();
-            Log.LogErrorWithCodeFromResources(nameof(Strings.LocalRegistryNotAvailable));
-            return;
-        }
-        try
-        {
-            await localRegistry.LoadAsync(builtImage, sourceImageReference, destinationImageReference, cancellationToken).ConfigureAwait(false);
-            SafeLog(Strings.ContainerBuilder_ImageUploadedToLocalDaemon, destinationImageReference, localRegistry);
-
-            if (localRegistry is ArchiveFileRegistry archive)
-            {
-                GeneratedArchiveOutputPath = archive.ArchiveOutputPath;
-            }
-        }
-        catch (ContainerHttpException e)
-        {
-            if (BuildEngine != null)
-            {
-                Log.LogErrorFromException(e, true);
-            }
-        }
-        catch (AggregateException ex) when (ex.InnerException is DockerLoadException dle)
-        {
-            telemetry.LogLocalLoadError();
-            Log.LogErrorFromException(dle, showStackTrace: false);
-        }
-        catch (ArgumentException argEx)
-        {
-            Log.LogErrorFromException(argEx, showStackTrace: false);
-        }
-    }
-
-    private async Task PushToRemoteRegistryAsync(BuiltImage builtImage, SourceImageReference sourceImageReference,
-        DestinationImageReference destinationImageReference,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            await destinationImageReference.RemoteRegistry!.PushAsync(
-                builtImage,
-                sourceImageReference,
-                destinationImageReference,
-                cancellationToken).ConfigureAwait(false);
-            SafeLog(Strings.ContainerBuilder_ImageUploadedToRegistry, destinationImageReference, OutputRegistry);
-        }
-        catch (UnableToAccessRepositoryException)
-        {
-            if (BuildEngine != null)
-            {
-                Log.LogErrorWithCodeFromResources(nameof(Strings.UnableToAccessRepository), destinationImageReference.Repository, destinationImageReference.RemoteRegistry!.RegistryName);
-            }
-        }
-        catch (ContainerHttpException e)
-        {
-            if (BuildEngine != null)
-            {
-                Log.LogErrorFromException(e, true);
-            }
-        }
-        catch (Exception e)
-        {
-            if (BuildEngine != null)
-            {
-                Log.LogErrorWithCodeFromResources(nameof(Strings.RegistryOutputPushFailed), e.Message);
-                Log.LogMessage(MessageImportance.Low, "Details: {0}", e);
-            }
-        }
     }
 
     private void SetPorts(ImageBuilder image, ITaskItem[] exposedPorts)
@@ -340,11 +246,6 @@ public sealed partial class CreateNewImage : Microsoft.Build.Utilities.Task, ICa
             var value = envVar.GetMetadata("Value");
             img.AddEnvironmentVariable(envVar.ItemSpec, value);
         }
-    }
-
-    private void SafeLog(string message, params object[] formatParams)
-    {
-        if (BuildEngine != null) Log.LogMessage(MessageImportance.High, message, formatParams);
     }
 
     public void Dispose()
