@@ -619,15 +619,6 @@ namespace Microsoft.NET.Build.Containers.Resources {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Unable to create tarball for oci image with multiple tags..
-        /// </summary>
-        internal static string OciImageMultipleTagsNotSupported {
-            get {
-                return ResourceManager.GetString("OciImageMultipleTagsNotSupported", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to CONTAINER2011: {0} &apos;{1}&apos; does not exist.
         /// </summary>
         internal static string PublishDirectoryDoesntExist {
