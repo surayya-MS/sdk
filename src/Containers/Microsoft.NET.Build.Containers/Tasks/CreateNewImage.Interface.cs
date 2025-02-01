@@ -162,6 +162,11 @@ partial class CreateNewImage
     public bool GenerateDigestLabel { get; set; }
 
     /// <summary>
+    /// If true, the tooling will skip the publishing step.
+    /// </summary>
+    public bool SkipPublishing { get; set; }
+
+    /// <summary>
     /// Set to either 'OCI', 'Docker', or null. If unset, the generated images' mediaType will be that of the base image. If set, the generated image will be given the specified media type.
     /// </summary>
     public string? ImageFormat { get; set; }
